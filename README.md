@@ -1,7 +1,4 @@
 ﻿# HealthPredict AI – Multi-Disease Prediction System
-
-![HealthPredict AI Logo](assets/screenshots/home.png)
-
 ## 📋 Overview
 
 **HealthPredict AI** is a comprehensive machine learning-based health prediction platform that uses advanced AI models to predict the risk of multiple diseases. The system combines a powerful FastAPI backend with pre-trained machine learning models and an intuitive interactive web interface.
@@ -44,13 +41,13 @@ Whether you're a healthcare professional, researcher, or individual concerned ab
 ## 🎨 Screenshots
 
 ### Home Interface
-![Home UI](assets/screenshots/home.png)
+![Home UI]![alt text](assets/screenshots/image-1.png)
 
 ### Prediction Input
-![Prediction UI](assets/screenshots/prediction.png)
+![Prediction UI]![alt text](assets/screenshots/image-2.png)
 
 ### Results Dashboard
-![Result UI](assets/screenshots/result.png)
+![Result UI]![alt text](assets/screenshots/image.png)
 
 ---
 
