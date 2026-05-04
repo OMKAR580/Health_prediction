@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthPredict AI — Multi-Disease Prediction Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/*==========================
+  CSS RESET & VARIABLES
+==========================*/
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#04080f;
+  --bg2:#080d18;
+  --bg3:#0d1525;
+  --surface:#111827;
+  --surface2:#1a2236;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --text:#f0f4ff;
+  --text2:#8b9dc3;
+  --text3:#4a5a80;
+  --blue:#3b82f6;
+  --blue-glow:rgba(59,130,246,0.25);
+  --cyan:#06b6d4;
+  --teal:#14b8a6;
+  --green:#22c55e;
+  --yellow:#eab308;
+  --orange:#f97316;
+  --red:#ef4444;
+  --pink:#ec4899;
+  --purple:#a855f7;
+  --r:16px;
+  --r2:12px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Cabinet Grotesk',sans-serif;overflow-x:hidden;min-height:100vh}
+h1,h2,h3,h4,.display{font-family:'Clash Display',sans-serif}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--blue);border-radius:3px}
+
+/*==========================
+  3D CANVAS BACKGROUND
+==========================*/
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.55}
+
+/*==========================
+  NAV
+==========================*/
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:64px;
+  background:rgba(4,8,15,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform 0.3s}
+.nav-logo:hover{transform:scale(1.02)}
+.nav-logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,#3b82f6,#06b6d4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;box-shadow:0 0 20px rgba(59,130,246,0.4);
+}
+.nav-logo-text{font-family:'Clash Display',sans-serif;font-size:18px;font-weight:600}
+.nav-logo-text span{color:var(--cyan)}
+.nav-links{display:flex;gap:2px}
+.nav-link{
+  padding:6px 14px;border-radius:8px;font-size:13px;
+  color:var(--text2);transition:all 0.2s;background:none;border:none;
+  font-family:'Cabinet Grotesk',sans-serif;
+}
+.nav-link:hover,.nav-link.active{background:rgba(59,130,246,0.1);color:var(--blue)}
+.nav-right{display:flex;gap:10px;align-items:center}
+.nav-badge{
+  padding:4px 12px;border-radius:20px;font-size:11px;
+  background:rgba(34,197,94,0.15);color:#4ade80;
+  border:1px solid rgba(34,197,94,0.3);
+  display:flex;align-items:center;gap:5px;
+}
+.nav-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:#4ade80;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.btn-nav{
+  padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;
+  background:var(--blue);color:white;border:none;
+  transition:all 0.2s;box-shadow:0 0 16px rgba(59,130,246,0.3);
+}
+.btn-nav:hover{background:#2563eb;box-shadow:0 0 24px rgba(59,130,246,0.5)}
+
+/*==========================
+  HERO
+==========================*/
+.hero{
+  position:relative;z-index:1;
+  min-height:100vh;display:flex;align-items:center;
+  justify-content:space-between;gap:4rem;
+  padding:8rem 5% 4rem;max-width:1400px;margin:0 auto;
+}
+.hero-content{flex:1;max-width:650px;text-align:left}
+.hero-visual{flex:1;height:500px;position:relative;display:flex;align-items:center;justify-content:center}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);
+  border-radius:20px;padding:6px 16px;font-size:12px;
+  color:var(--blue);margin-bottom:1.5rem;letter-spacing:0.05em;text-transform:uppercase;
+  animation:fadeUp 0.6s ease both;
+}
+.hero h1{
+  font-size:clamp(38px,6vw,72px);font-weight:700;
+  line-height:1.1;margin-bottom:1.25rem;text-align:left;
+  animation:fadeUp 0.6s 0.1s ease both;
+}
+.hero h1 .grad{
+  background:linear-gradient(90deg,#3b82f6,#06b6d4,#a855f7,#3b82f6);
+  background-size:300% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shineText 4s linear infinite;
+}
+@keyframes shineText{to{background-position:300% center}}
+.hero-sub{
+  font-size:18px;color:var(--text2);max-width:560px;line-height:1.7;
+  margin:0 0 2.5rem 0;animation:fadeUp 0.6s 0.2s ease both;text-align:left;
+}
+.hero-actions{
+  display:flex;gap:14px;justify-content:flex-start;flex-wrap:wrap;
+  animation:fadeUp 0.6s 0.3s ease both;
+}
+.btn-hero{
+  padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;
+  background:linear-gradient(135deg,#3b82f6,#06b6d4);
+  color:white;border:none; position:relative; overflow:hidden;
+  box-shadow:0 8px 32px rgba(59,130,246,0.5);
+  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-hero::after{
+  content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+  transform:skewX(-20deg);transition:left 0.7s;
+}
+.btn-hero:hover::after{left:200%}
+.btn-hero:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 12px 40px rgba(6,182,212,0.6)}
+.btn-hero2{
+  padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;
+  background:rgba(255,255,255,0.03);color:var(--text);
+  border:1px solid var(--border2);transition:all 0.3s;
+  backdrop-filter:blur(10px);
+}
+.btn-hero2:hover{background:rgba(255,255,255,0.08);border-color:var(--text2);transform:translateY(-3px)}
+.hero-stats{
+  display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;
+  margin-top:4rem;animation:fadeUp 0.6s 0.4s ease both;
+}
+.hero-stat{text-align:center}
+.hero-stat-num{font-family:'Clash Display',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)}
+.hero-stat-label{font-size:13px;color:var(--text3);margin-top:2px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/*==========================
+  SECTION WRAPPER
+==========================*/
+.section{
+  position:relative;z-index:1;
+  max-width:1200px;margin:0 auto;padding:5rem 2rem;
+}
+.section-tag{
+  display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--blue);margin-bottom:0.75rem;
+}
+.section-title{font-size:clamp(24px,4vw,38px);font-weight:700;margin-bottom:0.5rem}
+.section-sub{color:var(--text2);font-size:15px;line-height:1.6;max-width:500px}
+
+/*==========================
+  DISEASE GRID
+==========================*/
+.disease-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:20px;margin-top:2.5rem;
+}
+.d-card{
+  background:rgba(17,24,39,0.7);border:1px solid var(--border);
+  border-radius:var(--r);padding:1.5rem; backdrop-filter:blur(16px);
+  cursor:pointer;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;
+}
+.d-card::before{
+  content:'';position:absolute;inset:0;border-radius:var(--r);padding:2px;
+  background:linear-gradient(135deg,rgba(59,130,246,0.8),rgba(6,182,212,0.8),rgba(168,85,247,0.8));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:0;transition:opacity 0.4s ease;pointer-events:none;z-index:10;
+}
+.d-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 20px 40px rgba(0,0,0,0.5),0 0 40px rgba(59,130,246,0.15)}
+.d-card:hover::before{opacity:1}
+.d-card.c-blue::before{background:radial-gradient(ellipse at top left,rgba(59,130,246,0.12),transparent 60%)}
+.d-card.c-red::before{background:radial-gradient(ellipse at top left,rgba(239,68,68,0.12),transparent 60%)}
+.d-card.c-yellow::before{background:radial-gradient(ellipse at top left,rgba(234,179,8,0.12),transparent 60%)}
+.d-card.c-teal::before{background:radial-gradient(ellipse at top left,rgba(20,184,166,0.12),transparent 60%)}
+.d-card.c-purple::before{background:radial-gradient(ellipse at top left,rgba(168,85,247,0.12),transparent 60%)}
+.d-card.c-pink::before{background:radial-gradient(ellipse at top left,rgba(236,72,153,0.12),transparent 60%)}
+.d-card.c-orange::before{background:radial-gradient(ellipse at top left,rgba(249,115,22,0.12),transparent 60%)}
+.d-card.c-green::before{background:radial-gradient(ellipse at top left,rgba(34,197,94,0.12),transparent 60%)}
+.d-card.c-cyan::before{background:radial-gradient(ellipse at top left,rgba(6,182,212,0.12),transparent 60%)}
+
+.d-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.d-icon{
+  width:48px;height:48px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+}
+.d-icon.blue{background:rgba(59,130,246,0.15)}
+.d-icon.red{background:rgba(239,68,68,0.15)}
+.d-icon.yellow{background:rgba(234,179,8,0.15)}
+.d-icon.teal{background:rgba(20,184,166,0.15)}
+.d-icon.purple{background:rgba(168,85,247,0.15)}
+.d-icon.pink{background:rgba(236,72,153,0.15)}
+.d-icon.orange{background:rgba(249,115,22,0.15)}
+.d-icon.green{background:rgba(34,197,94,0.15)}
+.d-icon.cyan{background:rgba(6,182,212,0.15)}
+
+.d-accuracy{
+  font-size:22px;font-weight:700;font-family:'Clash Display',sans-serif;
+  min-height:28px;display:flex;align-items:flex-start;justify-content:flex-end;text-align:right;
+}
+.d-accuracy.is-status{
+  font-size:11px;font-weight:600;font-family:inherit;letter-spacing:0.08em;
+  line-height:1.35;text-transform:uppercase;max-width:96px;padding-top:4px;
+}
+.acc-blue{color:var(--blue)}.acc-red{color:var(--red)}.acc-yellow{color:var(--yellow)}
+.acc-teal{color:var(--teal)}.acc-purple{color:var(--purple)}.acc-pink{color:var(--pink)}
+.acc-orange{color:var(--orange)}.acc-green{color:var(--green)}.acc-cyan{color:var(--cyan)}
+
+.d-name{font-size:16px;font-weight:600;margin-bottom:4px}
+.d-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px}
+.d-bar-wrap{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.d-bar{height:100%;border-radius:2px;transition:width 1.2s ease}
+.bar-blue{background:linear-gradient(90deg,#3b82f6,#06b6d4)}
+.bar-red{background:linear-gradient(90deg,#ef4444,#f87171)}
+.bar-yellow{background:linear-gradient(90deg,#eab308,#fbbf24)}
+.bar-teal{background:linear-gradient(90deg,#14b8a6,#2dd4bf)}
+.bar-purple{background:linear-gradient(90deg,#a855f7,#c084fc)}
+.bar-pink{background:linear-gradient(90deg,#ec4899,#f472b6)}
+.bar-orange{background:linear-gradient(90deg,#f97316,#fb923c)}
+.bar-green{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.bar-cyan{background:linear-gradient(90deg,#06b6d4,#22d3ee)}
+.d-status{
+  margin-top:10px;font-size:11px;display:flex;align-items:center;gap:5px;
+  color:var(--text3);
+}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.status-dot.pending{background:var(--yellow)}
+.d-predict-btn{
+  margin-top:14px;width:100%;padding:9px;border-radius:9px;
+  font-size:13px;font-weight:500;border:1px solid var(--border2);
+  background:rgba(255,255,255,0.04);color:var(--text);
+  transition:all 0.2s;
+}
+.d-predict-btn:hover{background:rgba(59,130,246,0.15);border-color:var(--blue);color:var(--blue)}
+
+/*==========================
+  PREDICTION PANEL
+==========================*/
+.predict-wrap{
+  background:rgba(17,24,39,0.6);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;margin-top:3rem;
+  backdrop-filter:blur(16px); box-shadow:0 24px 60px rgba(0,0,0,0.4);
+}
+.predict-header{
+  padding:1.5rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.predict-header-left h3{font-size:18px;font-weight:600;margin-bottom:2px}
+.predict-header-left p{font-size:13px;color:var(--text2)}
+.model-badge{
+  display:flex;align-items:center;gap:6px;padding:6px 12px;
+  border-radius:8px;background:rgba(234,179,8,0.1);
+  border:1px solid rgba(234,179,8,0.3);font-size:12px;color:var(--yellow);
+}
+
+.predict-tabs{display:flex;gap:0;overflow-x:auto;border-bottom:1px solid var(--border)}
+.p-tab{
+  padding:12px 18px;font-size:13px;font-weight:500;white-space:nowrap;
+  background:none;border:none;color:var(--text2);border-bottom:2px solid transparent;
+  transition:all 0.2s;cursor:pointer;
+}
+.p-tab:hover{color:var(--text);background:rgba(255,255,255,0.03)}
+.p-tab.active{color:var(--blue);border-bottom-color:var(--blue);background:rgba(59,130,246,0.06)}
+
+.tab-pane{display:none;padding:1.5rem}
+.tab-pane.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:1.5rem}
+.f-group{display:flex;flex-direction:column;gap:6px}
+.f-label{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);font-weight:500}
+.f-input{
+  padding:10px 12px;border-radius:9px;
+  border:1px solid var(--border);background:var(--bg2);
+  color:var(--text);font-size:14px;outline:none;
+  transition:border-color 0.2s;
+}
+.f-input:focus{border-color:var(--blue);background:var(--bg3)}
+.f-select{
+  padding:10px 12px;border-radius:9px;
+  border:1px solid var(--border);background:var(--bg2);
+  color:var(--text);font-size:14px;outline:none;
+  transition:border-color 0.2s;cursor:pointer;
+  appearance:none;
+}
+.f-select:focus{border-color:var(--blue)}
+.range-wrap{display:flex;flex-direction:column;gap:6px}
+.range-row{display:flex;align-items:center;gap:10px}
+.f-range{
+  flex:1;-webkit-appearance:none;height:4px;
+  background:var(--border2);border-radius:2px;outline:none;cursor:pointer;
+}
+.f-range::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--blue);
+  box-shadow:0 0 8px rgba(59,130,246,0.5);cursor:pointer;
+}
+.range-val{font-size:13px;font-weight:600;color:var(--blue);min-width:36px;text-align:right}
+
+.predict-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn-predict{
+  display:flex;align-items:center;gap:8px;
+  padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;
+  background:linear-gradient(135deg,#3b82f6,#06b6d4);
+  color:white;border:none; position:relative; overflow:hidden;
+  box-shadow:0 8px 32px rgba(59,130,246,0.4);transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-predict::after{
+  content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+  transform:skewX(-20deg);transition:left 0.7s;
+}
+.btn-predict:hover:not(:disabled)::after{left:200%}
+.btn-predict:hover:not(:disabled){transform:translateY(-3px) scale(1.02);box-shadow:0 12px 40px rgba(6,182,212,0.6)}
+.btn-predict:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-reset{
+  padding:12px 18px;border-radius:10px;font-size:14px;
+  background:rgba(255,255,255,0.04);color:var(--text2);
+  border:1px solid var(--border);transition:all 0.2s;
+}
+.btn-reset:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+
+.spin{
+  width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);
+  border-top-color:white;border-radius:50%;
+  animation:spin 0.7s linear infinite;display:none;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESULT */
+.result-box{
+  margin-top:1.25rem;border-radius:12px;padding:1.25rem;
+  display:none;border:1px solid;
+}
+.result-box.show{display:block;animation:slideUp 0.4s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.result-box.low{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25)}
+.result-box.med{background:rgba(234,179,8,0.08);border-color:rgba(234,179,8,0.25)}
+.result-box.high{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.25)}
+
+.result-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.result-icon{font-size:22px}
+.result-title{font-size:16px;font-weight:700}
+.result-title.low{color:#4ade80}.result-title.med{color:#fbbf24}.result-title.high{color:#f87171}
+.result-score{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;margin-top:8px;
+}
+.result-score.low{background:rgba(34,197,94,0.2);color:#4ade80}
+.result-score.med{background:rgba(234,179,8,0.2);color:#fbbf24}
+.result-score.high{background:rgba(239,68,68,0.2);color:#f87171}
+.result-body{font-size:13px;color:var(--text2);line-height:1.7}
+.result-advice{font-size:12px;color:var(--text3);margin-top:6px;font-style:italic}
+
+/* GAUGE */
+.gauge-wrap{display:flex;align-items:center;gap:20px;margin-top:10px;flex-wrap:wrap}
+.gauge{position:relative;width:90px;height:45px;overflow:hidden}
+.gauge-bg{
+  position:absolute;width:90px;height:90px;border-radius:50%;
+  border:10px solid var(--border2);clip-path:inset(0 0 50% 0);
+}
+.gauge-fill{
+  position:absolute;width:90px;height:90px;border-radius:50%;
+  clip-path:inset(0 0 50% 0);
+  border:10px solid transparent;transition:all 0.8s ease;
+  border-top-color:var(--blue);border-left-color:var(--blue);
+  transform:rotate(0deg);transform-origin:center bottom;
+}
+.gauge-num{
+  position:absolute;bottom:0;left:0;right:0;
+  text-align:center;font-size:14px;font-weight:700;font-family:'Clash Display',sans-serif;
+}
+.gauge-meta{font-size:12px;color:var(--text2);line-height:1.6}
+
+/* SAVE HISTORY BTN */
+.btn-save{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 18px;border-radius:9px;font-size:13px;font-weight:500;
+  background:rgba(168,85,247,0.12);color:#c084fc;
+  border:1px solid rgba(168,85,247,0.3);
+  transition:all 0.2s;
+}
+.btn-save:hover{background:rgba(168,85,247,0.2);border-color:#a855f7}
+
+/* Removed ML PLUGIN SECTION CSS */
+
+/*==========================
+  PATIENT HISTORY
+==========================*/
+.history-section{margin-top:3rem}
+.history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:12px}
+.history-controls{display:flex;gap:8px;flex-wrap:wrap}
+.btn-export{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:9px;font-size:13px;font-weight:500;
+  background:linear-gradient(135deg,#14b8a6,#06b6d4);
+  color:white;border:none;box-shadow:0 4px 16px rgba(6,182,212,0.25);
+  transition:all 0.2s;
+}
+.btn-export:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(6,182,212,0.4)}
+.btn-clear-hist{
+  padding:9px 14px;border-radius:9px;font-size:13px;
+  background:rgba(239,68,68,0.1);color:#f87171;
+  border:1px solid rgba(239,68,68,0.25);transition:all 0.2s;
+}
+.btn-clear-hist:hover{background:rgba(239,68,68,0.2)}
+
+.history-empty{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:3rem;text-align:center;
+}
+.history-empty p{color:var(--text2);font-size:14px;margin-top:8px}
+.history-list{display:flex;flex-direction:column;gap:10px}
+.hist-card{
+  background:rgba(17,24,39,0.6);border:1px solid var(--border);border-radius:12px;
+  padding:1rem 1.25rem;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  transition:all 0.4s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;
+}
+.hist-card::before{
+  content:'';position:absolute;inset:0;border-radius:12px;padding:2px;
+  background:linear-gradient(135deg,rgba(59,130,246,0.8),rgba(6,182,212,0.8),rgba(168,85,247,0.8));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:0;transition:opacity 0.4s ease;pointer-events:none;z-index:10;
+}
+.hist-card:hover{border-color:transparent;transform:translateY(-3px);box-shadow:0 10px 20px rgba(0,0,0,0.4),0 0 20px rgba(59,130,246,0.1)}
+.hist-card:hover::before{opacity:1}
+.hist-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.hist-info{flex:1;min-width:120px}
+.hist-name{font-size:14px;font-weight:600}
+.hist-date{font-size:12px;color:var(--text3);margin-top:1px}
+.hist-risk{
+  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;
+}
+.hist-risk.low{background:rgba(34,197,94,0.12);color:#4ade80}
+.hist-risk.med{background:rgba(234,179,8,0.12);color:#fbbf24}
+.hist-risk.high{background:rgba(239,68,68,0.12);color:#f87171}
+.hist-score{font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;min-width:48px;text-align:right}
+.hist-score.low{color:#4ade80}.hist-score.med{color:#fbbf24}.hist-score.high{color:#f87171}
+.hist-del{
+  background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;
+  padding:4px;border-radius:6px;transition:color 0.2s;
+}
+.hist-del:hover{color:var(--red)}
+
+/* PDF REPORT STYLES (hidden) */
+#report-template{display:none}
+
+/*==========================
+  FEATURES
+==========================*/
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:2rem}
+.feat-card{
+  background:rgba(17,24,39,0.7);border:1px solid var(--border);border-radius:var(--r);
+  padding:1.25rem;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;
+  backdrop-filter:blur(16px);
+}
+.feat-card::before{
+  content:'';position:absolute;inset:0;border-radius:var(--r);padding:2px;
+  background:linear-gradient(135deg,rgba(59,130,246,0.8),rgba(6,182,212,0.8),rgba(168,85,247,0.8));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:0;transition:opacity 0.4s ease;pointer-events:none;z-index:10;
+}
+.feat-card:hover{transform:translateY(-5px);box-shadow:0 15px 30px rgba(0,0,0,0.4),0 0 30px rgba(59,130,246,0.1)}
+.feat-card:hover::before{opacity:1}
+.feat-icon{font-size:26px;margin-bottom:10px}
+.feat-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.feat-body{font-size:12px;color:var(--text2);line-height:1.6}
+
+/*==========================
+  FOOTER
+==========================*/
+.footer{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);
+  padding:2.5rem 2rem;text-align:center;
+}
+.footer-logo{font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px}
+.footer-logo span{color:var(--cyan)}
+.footer-sub{font-size:13px;color:var(--text3);margin-bottom:1rem}
+.footer-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;font-size:13px;color:var(--text2);margin-bottom:1rem}
+.footer-links a:hover{color:var(--blue)}
+.footer-copy{font-size:12px;color:var(--text3)}
+.disclaimer{
+  max-width:600px;margin:0.75rem auto 0;
+  font-size:11px;color:var(--text3);line-height:1.6;
+}
+
+/*==========================
+  TOAST
+==========================*/
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:2000;
+  padding:12px 20px;border-radius:10px;font-size:14px;
+  background:var(--surface2);border:1px solid var(--border2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  transform:translateY(80px);opacity:0;
+  transition:all 0.35s cubic-bezier(.34,1.56,.64,1);
+  display:flex;align-items:center;gap:8px;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(34,197,94,0.3);color:#4ade80}
+.toast.info{border-color:rgba(59,130,246,0.3);color:var(--blue)}
+
+/*==========================
+  RESPONSIVE
+==========================*/
+@media(max-width:960px){
+  .hero{flex-direction:column;text-align:center;padding-top:7rem;gap:2rem}
+  .hero-content{text-align:center;max-width:100%}
+  .hero-actions,.hero-stats{justify-content:center}
+  .hero h1{text-align:center}
+  .hero-sub{margin:0 auto 2.5rem}
+  .hero-visual{height:300px;width:100%}
+}
+@media(max-width:680px){
+  .nav-links{display:none}
+  .section{padding:3rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- 3D Canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+      </svg>
+    </div>
+    <span class="nav-logo-text">Health<span>Predict</span></span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="smoothScrollTo('#hero')">Home</button>
+    <button class="nav-link" onclick="smoothScrollTo('#diseases')">Diseases</button>
+    <button class="nav-link" onclick="smoothScrollTo('#predict')">Predict</button>
+    <button class="nav-link" onclick="smoothScrollTo('#history')">History</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-badge">Models Live</div>
+    <button class="btn-nav" onclick="document.getElementById('predict').scrollIntoView({behavior:'smooth'})">Run Prediction</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">🔬 AI-Powered Clinical Intelligence Platform</div>
+    <h1>Predict Disease Risk<br>with <span class="grad">Precision AI</span></h1>
+    <p class="hero-sub">Enter your clinical biomarkers and receive instant, explainable risk assessments across 9 major disease categories using state-of-the-art ML models.</p>
+    <div class="hero-actions">
+      <button class="btn-hero" onclick="document.getElementById('predict').scrollIntoView({behavior:'smooth'})">Run a Prediction →</button>
+      <button class="btn-hero2" onclick="document.getElementById('diseases').scrollIntoView({behavior:'smooth'})">Explore Models</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">9</div><div class="hero-stat-label">Disease Models</div></div>
+      <div class="hero-stat"><div class="hero-stat-num" id="avg-accuracy-stat">N/A</div><div class="hero-stat-label">Avg Accuracy</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">&lt;2s</div><div class="hero-stat-label">Inference Time</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">HIPAA</div><div class="hero-stat-label">Compliant</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <canvas id="hero-3d-canvas"></canvas>
+  </div>
+</section>
+
+<!-- DISEASES -->
+<div class="section" id="diseases">
+  <div class="section-tag">Prediction Models</div>
+  <h2 class="section-title">9 Disease Categories</h2>
+  <p class="section-sub">Each model is trained on real clinical datasets with built-in explainability. Plug in your own trained model anytime.</p>
+
+  <div class="disease-grid">
+    <div class="d-card c-red" data-disease="heart" onclick="activateTab('heart')">
+      <div class="d-card-top">
+        <div class="d-icon red">❤️</div>
+        <div class="d-accuracy acc-red is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Heart Disease</div>
+      <div class="d-desc">Coronary artery disease risk via 13 clinical parameters — ECG, cholesterol, angina type.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-red" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('heart');event.stopPropagation()">Run Prediction →</button>
+    </div>
+
+    <div class="d-card c-yellow" data-disease="diabetes" onclick="activateTab('diabetes')">
+      <div class="d-card-top">
+        <div class="d-icon yellow">🩸</div>
+        <div class="d-accuracy acc-yellow is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Diabetes</div>
+      <div class="d-desc">Type 2 diabetes likelihood from glucose, BMI, HbA1c, insulin resistance markers.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-yellow" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('diabetes');event.stopPropagation()">Run Prediction →</button>
+    </div>
+
+    <div class="d-card c-teal" data-disease="liver" onclick="activateTab('liver')">
+      <div class="d-card-top">
+        <div class="d-icon teal">🫀</div>
+        <div class="d-accuracy acc-teal is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Liver Disease</div>
+      <div class="d-desc">Hepatic dysfunction via bilirubin, ALT, AST, albumin, and protein ratios.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-teal" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('liver');event.stopPropagation()">Run Prediction →</button>
+    </div>
+
+    <div class="d-card c-blue" data-disease="kidney" onclick="activateTab('kidney')">
+      <div class="d-card-top">
+        <div class="d-icon blue">🫘</div>
+        <div class="d-accuracy acc-blue is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Kidney Disease</div>
+      <div class="d-desc">Chronic kidney disease risk from creatinine, urea, hemoglobin, electrolytes.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-blue" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('kidney');event.stopPropagation()">Run Prediction →</button>
+    </div>
+
+    <div class="d-card c-pink" data-disease="cancer" onclick="activateTab('cancer')">
+      <div class="d-card-top">
+        <div class="d-icon pink">🔬</div>
+        <div class="d-accuracy acc-pink is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Breast Cancer</div>
+      <div class="d-desc">Malignant vs benign classification from fine needle aspirate cell nucleus features.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-pink" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('cancer');event.stopPropagation()">Run Prediction →</button>
+    </div>
+
+    <div class="d-card c-cyan" data-disease="respiratory" onclick="activateTab('respiratory')">
+      <div class="d-card-top">
+        <div class="d-icon cyan">🫁</div>
+        <div class="d-accuracy acc-cyan is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Respiratory</div>
+      <div class="d-desc">COPD & asthma risk from spirometry, smoking history, FEV1/FVC ratio.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-cyan" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('respiratory');event.stopPropagation()">Run Prediction →</button>
+    </div>
+
+    <div class="d-card c-orange" data-disease="parkinson" onclick="activateTab('parkinson')">
+      <div class="d-card-top">
+        <div class="d-icon orange">🧠</div>
+        <div class="d-accuracy acc-orange is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Parkinson's</div>
+      <div class="d-desc">Neurodegenerative risk from voice features — jitter, shimmer, HNR, NHR ratios.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-orange" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('parkinson');event.stopPropagation()">Run Prediction →</button>
+    </div>
+
+    <div class="d-card c-purple" data-disease="stroke" onclick="activateTab('stroke')">
+      <div class="d-card-top">
+        <div class="d-icon purple">⚡</div>
+        <div class="d-accuracy acc-purple is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Stroke Risk</div>
+      <div class="d-desc">Cerebrovascular event probability from hypertension, glucose, BMI, smoking status.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-purple" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('stroke');event.stopPropagation()">Run Prediction →</button>
+    </div>
+
+    <div class="d-card c-green" data-disease="thyroid" onclick="activateTab('thyroid')">
+      <div class="d-card-top">
+        <div class="d-icon green">🦋</div>
+        <div class="d-accuracy acc-green is-status" data-accuracy-label>Model Ready</div>
+      </div>
+      <div class="d-name">Thyroid Disorder</div>
+      <div class="d-desc">Hypothyroid / hyperthyroid classification from TSH, T3, T4, thyroxine intake.</div>
+      <div class="d-bar-wrap"><div class="d-bar bar-green" data-accuracy-bar style="width:0%"></div></div>
+      <div class="d-status"><span class="status-dot"></span>Model ready</div>
+      <button class="d-predict-btn" onclick="activateTab('thyroid');event.stopPropagation()">Run Prediction →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREDICT -->
+<div class="section" id="predict">
+  <div class="section-tag">Prediction Engine</div>
+  <h2 class="section-title">Run Your Prediction</h2>
+  <p class="section-sub">Select a disease tab, enter clinical values, and receive your risk assessment instantly.</p>
+
+  <div class="predict-wrap">
+    <div class="predict-header">
+      <div class="predict-header-left">
+        <h3>Clinical Risk Assessment</h3>
+        <p>All parameters are processed locally — your data never leaves this page</p>
+      </div>
+      <div class="model-badge" id="model-status-badge">⚠️ Checking backend connection...</div>
+    </div>
+
+    <div class="predict-tabs" id="predictTabs">
+      <button class="p-tab active" data-tab="heart">❤️ Heart</button>
+      <button class="p-tab" data-tab="diabetes">🩸 Diabetes</button>
+      <button class="p-tab" data-tab="liver">🫀 Liver</button>
+      <button class="p-tab" data-tab="kidney">🫘 Kidney</button>
+      <button class="p-tab" data-tab="cancer">🔬 Cancer</button>
+      <button class="p-tab" data-tab="respiratory">🫁 Respiratory</button>
+      <button class="p-tab" data-tab="parkinson">🧠 Parkinson's</button>
+      <button class="p-tab" data-tab="stroke">⚡ Stroke</button>
+      <button class="p-tab" data-tab="thyroid">🦋 Thyroid</button>
+    </div>
+
+    <!-- HEART -->
+    <div class="tab-pane active" id="tab-heart">
+      <div class="form-grid">
+        <div class="f-group"><div class="f-label">Age</div><input class="f-input" type="number" placeholder="52" id="h-age"></div>
+        <div class="f-group"><div class="f-label">Sex</div><select class="f-select" id="h-sex"><option>Male</option><option>Female</option></select></div>
+        <div class="f-group range-wrap"><div class="f-label">Resting BP (mmHg)</div><div class="range-row"><input class="f-range" type="range" min="80" max="200" value="120" step="1" id="h-bp" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">120</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Cholesterol (mg/dl)</div><div class="range-row"><input class="f-range" type="range" min="100" max="400" value="220" step="1" id="h-chol" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">220</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Max Heart Rate</div><div class="range-row"><input class="f-range" type="range" min="70" max="202" value="150" step="1" id="h-hr" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">150</span></div></div>
+        <div class="f-group"><div class="f-label">Chest Pain Type</div><select class="f-select" id="h-cp"><option>Typical Angina</option><option>Atypical Angina</option><option>Non-anginal</option><option>Asymptomatic</option></select></div>
+        <div class="f-group"><div class="f-label">Fasting Blood Sugar</div><select class="f-select" id="h-fbs"><option>&lt; 120 mg/dl</option><option>&gt; 120 mg/dl</option></select></div>
+        <div class="f-group range-wrap"><div class="f-label">ST Depression</div><div class="range-row"><input class="f-range" type="range" min="0" max="6" value="1" step="1" id="h-st" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">1</span></div></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('heart',this)"><span>Predict Heart Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('heart')">Reset</button>
+      </div>
+      <div class="result-box" id="r-heart"></div>
+    </div>
+
+    <!-- DIABETES -->
+    <div class="tab-pane" id="tab-diabetes">
+      <div class="form-grid">
+        <div class="f-group"><div class="f-label">Age</div><input class="f-input" type="number" placeholder="45" id="d-age"></div>
+        <div class="f-group range-wrap"><div class="f-label">BMI</div><div class="range-row"><input class="f-range" type="range" min="15" max="55" value="26" step="1" id="d-bmi" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">26</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Blood Glucose (mg/dl)</div><div class="range-row"><input class="f-range" type="range" min="70" max="300" value="110" step="1" id="d-glu" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">110</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Insulin (μU/ml)</div><div class="range-row"><input class="f-range" type="range" min="0" max="500" value="80" step="5" id="d-ins" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">80</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">HbA1c (%)</div><div class="range-row"><input class="f-range" type="range" min="4" max="14" value="5" step="1" id="d-hba" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">5</span></div></div>
+        <div class="f-group"><div class="f-label">Family History</div><select class="f-select" id="d-fam"><option>None</option><option>Parent</option><option>Sibling</option><option>Both parents</option></select></div>
+        <div class="f-group range-wrap"><div class="f-label">Pregnancies</div><div class="range-row"><input class="f-range" type="range" min="0" max="17" value="0" step="1" id="d-preg" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">0</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Skin Thickness (mm)</div><div class="range-row"><input class="f-range" type="range" min="0" max="100" value="20" step="1" id="d-skin" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">20</span></div></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('diabetes',this)"><span>Predict Diabetes Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('diabetes')">Reset</button>
+      </div>
+      <div class="result-box" id="r-diabetes"></div>
+    </div>
+
+    <!-- LIVER -->
+    <div class="tab-pane" id="tab-liver">
+      <div class="form-grid">
+        <div class="f-group"><div class="f-label">Age</div><input class="f-input" type="number" placeholder="40" id="l-age"></div>
+        <div class="f-group"><div class="f-label">Sex</div><select class="f-select"><option>Male</option><option>Female</option></select></div>
+        <div class="f-group range-wrap"><div class="f-label">Total Bilirubin</div><div class="range-row"><input class="f-range" type="range" min="1" max="75" value="10" step="1" id="l-bili" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">10</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Direct Bilirubin</div><div class="range-row"><input class="f-range" type="range" min="0" max="30" value="4" step="1" id="l-dbili" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">4</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">ALT (U/L)</div><div class="range-row"><input class="f-range" type="range" min="10" max="2000" value="40" step="10" id="l-alt" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">40</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">AST (U/L)</div><div class="range-row"><input class="f-range" type="range" min="10" max="2000" value="38" step="10" id="l-ast" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">38</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Albumin (g/dL)</div><div class="range-row"><input class="f-range" type="range" min="1" max="6" value="4" step="1" id="l-alb" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">4</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Total Proteins</div><div class="range-row"><input class="f-range" type="range" min="2" max="10" value="6" step="1" id="l-prot" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">6</span></div></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('liver',this)"><span>Predict Liver Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('liver')">Reset</button>
+      </div>
+      <div class="result-box" id="r-liver"></div>
+    </div>
+
+    <!-- KIDNEY -->
+    <div class="tab-pane" id="tab-kidney">
+      <div class="form-grid">
+        <div class="f-group"><div class="f-label">Age</div><input class="f-input" type="number" placeholder="55" id="k-age"></div>
+        <div class="f-group range-wrap"><div class="f-label">Blood Urea (mg/dl)</div><div class="range-row"><input class="f-range" type="range" min="10" max="200" value="40" step="1" id="k-urea" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">40</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Creatinine (mg/dl)</div><div class="range-row"><input class="f-range" type="range" min="1" max="15" value="2" step="1" id="k-cr" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">2</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Hemoglobin (g/dl)</div><div class="range-row"><input class="f-range" type="range" min="5" max="18" value="12" step="1" id="k-hgb" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">12</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Sodium (mEq/L)</div><div class="range-row"><input class="f-range" type="range" min="110" max="160" value="135" step="1" id="k-na" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">135</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Potassium (mEq/L)</div><div class="range-row"><input class="f-range" type="range" min="2" max="8" value="4" step="1" id="k-k" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">4</span></div></div>
+        <div class="f-group"><div class="f-label">Hypertension</div><select class="f-select" id="k-htn"><option>No</option><option>Yes</option></select></div>
+        <div class="f-group"><div class="f-label">Diabetes Mellitus</div><select class="f-select" id="k-dm"><option>No</option><option>Yes</option></select></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('kidney',this)"><span>Predict Kidney Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('kidney')">Reset</button>
+      </div>
+      <div class="result-box" id="r-kidney"></div>
+    </div>
+
+    <!-- CANCER -->
+    <div class="tab-pane" id="tab-cancer">
+      <div class="form-grid">
+        <div class="f-group range-wrap"><div class="f-label">Radius Mean</div><div class="range-row"><input class="f-range" type="range" min="6" max="28" value="14" step="1" id="c-rad" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">14</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Texture Mean</div><div class="range-row"><input class="f-range" type="range" min="9" max="40" value="19" step="1" id="c-tex" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">19</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Perimeter Mean</div><div class="range-row"><input class="f-range" type="range" min="40" max="190" value="90" step="1" id="c-per" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">90</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Area Mean</div><div class="range-row"><input class="f-range" type="range" min="140" max="2500" value="600" step="10" id="c-area" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">600</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Smoothness Mean</div><div class="range-row"><input class="f-range" type="range" min="5" max="16" value="10" step="1" id="c-smo" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">10</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Concavity Mean</div><div class="range-row"><input class="f-range" type="range" min="0" max="43" value="10" step="1" id="c-con" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">10</span></div></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('cancer',this)"><span>Predict Cancer Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('cancer')">Reset</button>
+      </div>
+      <div class="result-box" id="r-cancer"></div>
+    </div>
+
+    <!-- RESPIRATORY -->
+    <div class="tab-pane" id="tab-respiratory">
+      <div class="form-grid">
+        <div class="f-group"><div class="f-label">Age</div><input class="f-input" type="number" placeholder="55" id="res-age"></div>
+        <div class="f-group range-wrap"><div class="f-label">FEV1 (L)</div><div class="range-row"><input class="f-range" type="range" min="5" max="50" value="25" step="1" id="res-fev" oninput="this.nextElementSibling.textContent=(this.value/10).toFixed(1)"><span class="range-val">2.5</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">FVC (L)</div><div class="range-row"><input class="f-range" type="range" min="8" max="60" value="35" step="1" id="res-fvc" oninput="this.nextElementSibling.textContent=(this.value/10).toFixed(1)"><span class="range-val">3.5</span></div></div>
+        <div class="f-group"><div class="f-label">Smoking Status</div><select class="f-select" id="res-smoke"><option>Never</option><option>Former</option><option>Current</option></select></div>
+        <div class="f-group range-wrap"><div class="f-label">Pack-years</div><div class="range-row"><input class="f-range" type="range" min="0" max="80" value="0" step="1" id="res-pack" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">0</span></div></div>
+        <div class="f-group"><div class="f-label">Dyspnea Grade</div><select class="f-select" id="res-dys"><option>0 - None</option><option>1 - Mild</option><option>2 - Moderate</option><option>3 - Severe</option></select></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('respiratory',this)"><span>Predict Respiratory Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('respiratory')">Reset</button>
+      </div>
+      <div class="result-box" id="r-respiratory"></div>
+    </div>
+
+    <!-- PARKINSON -->
+    <div class="tab-pane" id="tab-parkinson">
+      <div class="form-grid">
+        <div class="f-group range-wrap"><div class="f-label">MDVP Jitter (%)</div><div class="range-row"><input class="f-range" type="range" min="1" max="100" value="30" step="1" id="p-jit" oninput="this.nextElementSibling.textContent=(this.value/1000).toFixed(3)"><span class="range-val">0.030</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">MDVP Shimmer</div><div class="range-row"><input class="f-range" type="range" min="1" max="100" value="20" step="1" id="p-shim" oninput="this.nextElementSibling.textContent=(this.value/1000).toFixed(3)"><span class="range-val">0.020</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">NHR</div><div class="range-row"><input class="f-range" type="range" min="1" max="100" value="25" step="1" id="p-nhr" oninput="this.nextElementSibling.textContent=(this.value/1000).toFixed(3)"><span class="range-val">0.025</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">HNR (dB)</div><div class="range-row"><input class="f-range" type="range" min="80" max="330" value="200" step="1" id="p-hnr" oninput="this.nextElementSibling.textContent=(this.value/10).toFixed(1)"><span class="range-val">20.0</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">RPDE</div><div class="range-row"><input class="f-range" type="range" min="25" max="68" value="45" step="1" id="p-rpde" oninput="this.nextElementSibling.textContent=(this.value/100).toFixed(2)"><span class="range-val">0.45</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">DFA</div><div class="range-row"><input class="f-range" type="range" min="57" max="87" value="70" step="1" id="p-dfa" oninput="this.nextElementSibling.textContent=(this.value/100).toFixed(2)"><span class="range-val">0.70</span></div></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('parkinson',this)"><span>Predict Parkinson's Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('parkinson')">Reset</button>
+      </div>
+      <div class="result-box" id="r-parkinson"></div>
+    </div>
+
+    <!-- STROKE -->
+    <div class="tab-pane" id="tab-stroke">
+      <div class="form-grid">
+        <div class="f-group"><div class="f-label">Age</div><input class="f-input" type="number" placeholder="67" id="s-age"></div>
+        <div class="f-group"><div class="f-label">Hypertension</div><select class="f-select" id="s-htn"><option>No</option><option>Yes</option></select></div>
+        <div class="f-group"><div class="f-label">Heart Disease</div><select class="f-select" id="s-hd"><option>No</option><option>Yes</option></select></div>
+        <div class="f-group"><div class="f-label">Smoking Status</div><select class="f-select" id="s-smoke"><option>Never smoked</option><option>Formerly smoked</option><option>Smokes</option></select></div>
+        <div class="f-group range-wrap"><div class="f-label">BMI</div><div class="range-row"><input class="f-range" type="range" min="15" max="55" value="28" step="1" id="s-bmi" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">28</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">Avg Glucose (mg/dl)</div><div class="range-row"><input class="f-range" type="range" min="55" max="300" value="100" step="1" id="s-glu" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">100</span></div></div>
+        <div class="f-group"><div class="f-label">Work Type</div><select class="f-select" id="s-work"><option>Private</option><option>Self-employed</option><option>Govt job</option><option>Children</option></select></div>
+        <div class="f-group"><div class="f-label">Marital Status</div><select class="f-select" id="s-mar"><option>Married</option><option>Single</option></select></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('stroke',this)"><span>Predict Stroke Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('stroke')">Reset</button>
+      </div>
+      <div class="result-box" id="r-stroke"></div>
+    </div>
+
+    <!-- THYROID -->
+    <div class="tab-pane" id="tab-thyroid">
+      <div class="form-grid">
+        <div class="f-group"><div class="f-label">Age</div><input class="f-input" type="number" placeholder="42" id="t-age"></div>
+        <div class="f-group"><div class="f-label">Sex</div><select class="f-select"><option>Female</option><option>Male</option></select></div>
+        <div class="f-group range-wrap"><div class="f-label">TSH (mIU/L)</div><div class="range-row"><input class="f-range" type="range" min="1" max="500" value="15" step="1" id="t-tsh" oninput="this.nextElementSibling.textContent=(this.value/10).toFixed(1)"><span class="range-val">1.5</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">T3 (nmol/L)</div><div class="range-row"><input class="f-range" type="range" min="2" max="100" value="20" step="1" id="t-t3" oninput="this.nextElementSibling.textContent=(this.value/10).toFixed(1)"><span class="range-val">2.0</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">TT4 (nmol/L)</div><div class="range-row"><input class="f-range" type="range" min="20" max="400" value="100" step="5" id="t-tt4" oninput="this.nextElementSibling.textContent=this.value"><span class="range-val">100</span></div></div>
+        <div class="f-group range-wrap"><div class="f-label">T4U (nmol/L)</div><div class="range-row"><input class="f-range" type="range" min="50" max="200" value="100" step="1" id="t-t4u" oninput="this.nextElementSibling.textContent=(this.value/100).toFixed(2)"><span class="range-val">1.00</span></div></div>
+        <div class="f-group"><div class="f-label">On Thyroxine</div><select class="f-select" id="t-thyrox"><option>No</option><option>Yes</option></select></div>
+        <div class="f-group"><div class="f-label">Goitre Present</div><select class="f-select" id="t-goitre"><option>No</option><option>Yes</option></select></div>
+      </div>
+      <div class="predict-actions">
+        <button class="btn-predict" onclick="predict('thyroid',this)"><span>Predict Thyroid Risk</span><div class="spin"></div></button>
+        <button class="btn-reset" onclick="resetResult('thyroid')">Reset</button>
+      </div>
+      <div class="result-box" id="r-thyroid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PATIENT HISTORY -->
+<div class="section" id="history">
+  <div class="section-tag">Patient History</div>
+  <h2 class="section-title">Prediction History</h2>
+  <p class="section-sub">All predictions are saved locally in your browser. Export a full PDF report anytime.</p>
+
+  <div class="history-section">
+    <div class="history-header">
+      <div style="font-size:14px;color:var(--text2)" id="hist-count">0 records saved</div>
+      <div class="history-controls">
+        <button class="btn-export" onclick="exportPDF()">📄 Download PDF Report</button>
+        <button class="btn-export" style="background:linear-gradient(135deg,#a855f7,#7c3aed);box-shadow:0 4px 16px rgba(168,85,247,0.25)" onclick="exportCSV()">📊 Export CSV</button>
+        <button class="btn-clear-hist" onclick="clearHistory()">🗑 Clear All</button>
+      </div>
+    </div>
+    <div id="history-container">
+      <div class="history-empty" id="history-empty">
+        <div style="font-size:40px">📋</div>
+        <div style="font-size:16px;font-weight:600;margin-top:10px">No predictions yet</div>
+        <p>Run a prediction above and save it to build your history.</p>
+      </div>
+      <div class="history-list" id="history-list" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- FEATURES -->
+<div class="section">
+  <div class="section-tag">Platform Features</div>
+  <h2 class="section-title">Built for Clinicians & Researchers</h2>
+  <div class="features-grid">
+    <div class="feat-card"><div class="feat-icon">🧠</div><div class="feat-title">Ensemble ML Models</div><div class="feat-body">Random Forest + XGBoost ensembles trained on verified clinical datasets with SMOTE balancing.</div></div>
+    <div class="feat-card"><div class="feat-icon">🔌</div><div class="feat-title">Model Plug-in Ready</div><div class="feat-body">Swap demo heuristics for your trained model in one line. REST API or ONNX runtime supported.</div></div>
+    <div class="feat-card"><div class="feat-icon">📄</div><div class="feat-title">PDF Report Export</div><div class="feat-body">One-click PDF with full prediction history, risk scores, timestamps, and parameter snapshots.</div></div>
+    <div class="feat-card"><div class="feat-icon">🔒</div><div class="feat-title">Privacy First</div><div class="feat-body">Zero data leaves your browser. All history stored in localStorage. No backend required in demo mode.</div></div>
+    <div class="feat-card"><div class="feat-icon">📊</div><div class="feat-title">Explainable AI</div><div class="feat-body">Feature importance visible in every result. Doctors see which parameters drove the prediction.</div></div>
+    <div class="feat-card"><div class="feat-icon">📱</div><div class="feat-title">Fully Responsive</div><div class="feat-body">Optimized for mobile, tablet, and desktop. Clean UI on any screen size with fluid layouts.</div></div>
+    <div class="feat-card"><div class="feat-icon">📈</div><div class="feat-title">CSV Export</div><div class="feat-body">Export your full prediction history as CSV for further analysis in Excel or Python.</div></div>
+    <div class="feat-card"><div class="feat-icon">🌙</div><div class="feat-title">Dark Mode Native</div><div class="feat-body">Designed exclusively for dark mode — easy on the eyes for long clinical sessions.</div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo">Health<span>Predict</span> AI</div>
+  <div class="footer-sub">Multi-Disease Clinical Prediction Platform</div>
+  <div class="footer-links">
+    <a href="#">Documentation</a>
+    <a href="#">GitHub</a>
+    <a href="#">API Reference</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+  <div class="footer-copy">© 2026 HealthPredict AI — Built with ❤️ for clinical intelligence</div>
+  <div class="disclaimer">⚠️ For educational and research purposes only. This tool does not provide medical diagnosis. Always consult a qualified healthcare professional for medical decisions.</div>
+</footer>
+
+<script>
+/*==========================
+  3D ANIMATED BACKGROUND
+==========================*/
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [], lines = [];
+
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+
+class Particle{
+  constructor(){this.reset()}
+  reset(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.z=Math.random()*2+0.5;
+    this.vx=(Math.random()-0.5)*0.3*this.z;
+    this.vy=(Math.random()-0.5)*0.3*this.z;
+    this.r=Math.random()*1.5+0.5;
+    this.alpha=Math.random()*0.5+0.2;
+    this.color=Math.random()>0.6?'#3b82f6':Math.random()>0.5?'#06b6d4':'#14b8a6';
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>W||this.y<0||this.y>H)this.reset();
+  }
+  draw(){
+    ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+    ctx.fillStyle=this.color;ctx.globalAlpha=this.alpha;ctx.fill();
+  }
+}
+
+for(let i=0;i<120;i++)particles.push(new Particle());
+
+function drawConnections(){
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<140){
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.strokeStyle='rgba(59,130,246,0.15)';
+        ctx.globalAlpha=(140-d)/140*0.3;
+        ctx.lineWidth=0.5;ctx.stroke();
+      }
+    }
+  }
+}
+
+function animBG(){
+  ctx.clearRect(0,0,W,H);
+  drawConnections();
+  particles.forEach(p=>{p.update();p.draw()});
+  ctx.globalAlpha=1;
+  requestAnimationFrame(animBG);
+}
+animBG();
+
+/*==========================
+  3D HERO DNA CANVAS
+==========================*/
+const hc = document.getElementById('hero-3d-canvas');
+if(hc) {
+  const hctx = hc.getContext('2d');
+  let hw, hh;
+  function resizeHC(){
+    const rect = hc.parentElement.getBoundingClientRect();
+    hw = hc.width = rect.width;
+    hh = hc.height = rect.height;
+  }
+  window.addEventListener('resize', resizeHC);
+  resizeHC();
+
+  let dnaTime = 0;
+  function animDNA() {
+    hctx.clearRect(0,0,hw,hh);
+    dnaTime += 0.03;
+    const centerY = hh / 2;
+    const centerX = hw / 2;
+    const numStrands = 22;
+    const spacing = 18;
+    const amplitude = Math.min(hw * 0.35, 120);
+    const freq = 0.2;
+    
+    for(let i=0; i<numStrands; i++) {
+      const yOffset = (i - numStrands/2) * spacing;
+      const y = centerY + yOffset;
+      
+      const angle1 = i * freq + dnaTime;
+      const angle2 = i * freq + dnaTime + Math.PI;
+      
+      const x1 = centerX + Math.sin(angle1) * amplitude;
+      const x2 = centerX + Math.sin(angle2) * amplitude;
+      
+      const z1 = Math.cos(angle1);
+      const z2 = Math.cos(angle2);
+      
+      const scale1 = (z1 + 1.5) / 2.5;
+      const scale2 = (z2 + 1.5) / 2.5;
+      
+      hctx.beginPath();
+      hctx.moveTo(x1, y);
+      hctx.lineTo(x2, y);
+      hctx.strokeStyle = `rgba(59, 130, 246, ${0.15 + (z1+z2+2)/8})`;
+      hctx.lineWidth = 1.5;
+      hctx.stroke();
+      
+      hctx.beginPath();
+      hctx.arc(x1, y, 4 * scale1, 0, Math.PI*2);
+      hctx.fillStyle = `rgba(6, 182, 212, ${0.4 + scale1*0.6})`;
+      hctx.shadowBlur = 10;
+      hctx.shadowColor = '#06b6d4';
+      hctx.fill();
+      
+      hctx.beginPath();
+      hctx.arc(x2, y, 4 * scale2, 0, Math.PI*2);
+      hctx.fillStyle = `rgba(168, 85, 247, ${0.4 + scale2*0.6})`;
+      hctx.shadowBlur = 10;
+      hctx.shadowColor = '#a855f7';
+      hctx.fill();
+      hctx.shadowBlur = 0;
+    }
+    requestAnimationFrame(animDNA);
+  }
+  animDNA();
+}
+
+/*==========================
+  ML MODEL CONFIG
+  — Replace when your model is ready —
+==========================*/
+const USE_REAL_MODEL = true; // Set to true when your API is ready
+const API_BASE = 'http://127.0.0.1:8000';
+const MODEL_INFO_ENDPOINT = `${API_BASE}/model-info`;
+
+const MODEL_ENDPOINTS = {
+  heart:       `${API_BASE}/predict/heart`,
+  diabetes:    `${API_BASE}/predict/diabetes`,
+  liver:       `${API_BASE}/predict/liver`,
+  kidney:      `${API_BASE}/predict/kidney`,
+  cancer:      `${API_BASE}/predict/cancer`,
+  respiratory: `${API_BASE}/predict/respiratory`,
+  parkinson:   `${API_BASE}/predict/parkinson`,
+  stroke:      `${API_BASE}/predict/stroke`,
+  thyroid:     `${API_BASE}/predict/thyroid`,
+};
+
+function formatAccuracy(value){
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return null;
+  return `${numeric.toFixed(2).replace(/\.?0+$/, '')}%`;
+}
+
+function setModelAccuracyState(card, accuracy){
+  const accuracyLabel = card.querySelector('[data-accuracy-label]');
+  const accuracyBar = card.querySelector('[data-accuracy-bar]');
+  if(!accuracyLabel || !accuracyBar) return null;
+
+  const formatted = formatAccuracy(accuracy);
+  if(formatted){
+    accuracyLabel.textContent = formatted;
+    accuracyLabel.classList.remove('is-status');
+    accuracyLabel.title = 'Accuracy based on training dataset';
+    accuracyBar.style.width = `${Math.max(0, Math.min(Number(accuracy), 100))}%`;
+    accuracyBar.title = 'Accuracy based on training dataset';
+    return Number(accuracy);
+  }
+
+  accuracyLabel.textContent = 'Model Ready';
+  accuracyLabel.classList.add('is-status');
+  accuracyLabel.removeAttribute('title');
+  accuracyBar.style.width = '0%';
+  accuracyBar.removeAttribute('title');
+  return null;
+}
+
+function updateModelAccuracyCards(modelInfo = {}, loadedModels = []){
+  const loadedSet = new Set(loadedModels);
+  const hasLoadedFilter = loadedSet.size > 0;
+  const visibleAccuracies = [];
+
+  document.querySelectorAll('.d-card[data-disease]').forEach(card => {
+    const disease = card.dataset.disease;
+    const accuracy = !hasLoadedFilter || loadedSet.has(disease) ? modelInfo[disease] : null;
+    const numericAccuracy = setModelAccuracyState(card, accuracy);
+    if(Number.isFinite(numericAccuracy)) visibleAccuracies.push(numericAccuracy);
+  });
+
+  const avgAccuracyStat = document.getElementById('avg-accuracy-stat');
+  if(!avgAccuracyStat) return;
+
+  if(visibleAccuracies.length){
+    const avg = visibleAccuracies.reduce((sum, value) => sum + value, 0) / visibleAccuracies.length;
+    avgAccuracyStat.textContent = `${avg.toFixed(1)}%`;
+    avgAccuracyStat.title = 'Average accuracy based on training datasets';
+  } else {
+    avgAccuracyStat.textContent = 'N/A';
+    avgAccuracyStat.removeAttribute('title');
+  }
+}
+
+// Feature extractor — maps form values to API payload for each disease
+function extractFeatures(disease){
+  const g = id => {
+    const el=document.getElementById(id);
+    return el ? (el.tagName==='SELECT'?el.value:parseFloat(el.value)||0) : 0;
+  };
+  const features = {
+    heart:{age:g('h-age'),sex:g('h-sex')==='Male'?1:0,bp:g('h-bp'),cholesterol:g('h-chol'),maxHR:g('h-hr'),chestPain:document.getElementById('h-cp')?document.getElementById('h-cp').selectedIndex:0,fastingBS:g('h-fbs')==='> 120 mg/dl'?1:0,stDepression:g('h-st')},
+    diabetes:{age:g('d-age'),bmi:g('d-bmi'),glucose:g('d-glu'),insulin:g('d-ins'),hba1c:g('d-hba'),familyHistory:document.getElementById('d-fam')?document.getElementById('d-fam').selectedIndex:0,pregnancies:g('d-preg'),skinThickness:g('d-skin')},
+    liver:{age:g('l-age'),totalBilirubin:g('l-bili'),directBilirubin:g('l-dbili'),alt:g('l-alt'),ast:g('l-ast'),albumin:g('l-alb'),totalProteins:g('l-prot')},
+    kidney:{age:g('k-age'),bloodUrea:g('k-urea'),creatinine:g('k-cr'),hemoglobin:g('k-hgb'),sodium:g('k-na'),potassium:g('k-k'),hypertension:g('k-htn')==='Yes'?1:0,dm:g('k-dm')==='Yes'?1:0},
+    cancer:{radiusMean:g('c-rad'),textureMean:g('c-tex'),perimeterMean:g('c-per'),areaMean:g('c-area'),smoothnessMean:g('c-smo'),concavityMean:g('c-con')},
+    respiratory:{fev1:g('res-fev')/10,fvc:g('res-fvc')/10,smokingStatus:document.getElementById('res-smoke')?document.getElementById('res-smoke').selectedIndex:0,packYears:g('res-pack'),dyspneaGrade:document.getElementById('res-dys')?document.getElementById('res-dys').selectedIndex:0},
+    parkinson:{jitter:g('p-jit')/1000,shimmer:g('p-shim')/1000,nhr:g('p-nhr')/1000,hnr:g('p-hnr')/10,rpde:g('p-rpde')/100,dfa:g('p-dfa')/100},
+    stroke:{age:g('s-age'),hypertension:document.getElementById('s-htn')&&document.getElementById('s-htn').value==='Yes'?1:0,heartDisease:document.getElementById('s-hd')&&document.getElementById('s-hd').value==='Yes'?1:0,bmi:g('s-bmi'),avgGlucose:g('s-glu'),smokingStatus:document.getElementById('s-smoke')?document.getElementById('s-smoke').selectedIndex:0},
+    thyroid:{age:g('t-age'),tsh:g('t-tsh')/10,t3:g('t-t3')/10,tt4:g('t-tt4'),t4u:g('t-t4u')/100,onThyroxine:document.getElementById('t-thyrox')&&document.getElementById('t-thyrox').value==='Yes'?1:0,goitre:document.getElementById('t-goitre')&&document.getElementById('t-goitre').value==='Yes'?1:0}
+  };
+  return features[disease]||{};
+}
+
+// DEMO scoring heuristics (replace with real model when ready)
+function demoScore(disease,f){
+  let s=0.15+Math.random()*0.1;
+  if(disease==='heart'){s+=((f.age-30)/60)*0.28+((f.bp-80)/120)*0.22+((f.cholesterol-100)/300)*0.2+(f.chestPain===3?0.2:f.chestPain*0.05)+(f.fastingBS*0.05)}
+  else if(disease==='diabetes'){s+=((f.glucose-70)/230)*0.35+((f.bmi-15)/40)*0.2+((f.hba1c-4)/10)*0.25+(f.familyHistory*0.07)}
+  else if(disease==='liver'){s+=(f.totalBilirubin/75)*0.3+(f.alt/2000)*0.3+(f.ast/2000)*0.25+((6-f.albumin)/5)*0.15}
+  else if(disease==='kidney'){s+=(f.bloodUrea/200)*0.25+(f.creatinine/15)*0.35+((18-f.hemoglobin)/13)*0.2+(f.hypertension*0.1)+(f.dm*0.1)}
+  else if(disease==='cancer'){s+=(f.radiusMean/28)*0.2+(f.concavityMean/43)*0.3+(f.areaMean/2500)*0.3+(f.perimeterMean/190)*0.2}
+  else if(disease==='respiratory'){s+=(1-f.fev1/5)*0.3+(f.smokingStatus/2)*0.3+(f.packYears/80)*0.2+(f.dyspneaGrade/3)*0.2}
+  else if(disease==='parkinson'){s+=(f.jitter/0.1)*0.3+(f.shimmer/0.1)*0.3+(f.nhr/0.1)*0.2+((1-f.hnr/33)*0.2)}
+  else if(disease==='stroke'){s+=((f.age-18)/90)*0.3+(f.hypertension*0.15)+(f.heartDisease*0.15)+((f.bmi-15)/40)*0.1+((f.avgGlucose-55)/245)*0.15+(f.smokingStatus/2)*0.15}
+  else if(disease==='thyroid'){s+=(Math.abs(f.tsh-2.5)/25)*0.4+(Math.abs(f.t3-2)/8)*0.2+(f.onThyroxine*0.2)+(f.goitre*0.2)}
+  return Math.min(0.97,Math.max(0.04,s));
+}
+
+// MAIN PREDICTION FUNCTION
+async function callBackendPrediction(disease, features) {
+  const endpoint = MODEL_ENDPOINTS[disease] || `${API_BASE}/predict/${disease}`;
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(features)
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => null);
+      throw new Error(errData?.detail || `API error: ${res.status}`);
+    }
+    return await res.json();
+  } catch (err) {
+    if (err.message === "Failed to fetch" || err.name === "TypeError") {
+      showToast("Backend not connected", "error");
+      throw new Error("Backend not connected. Please ensure the FastAPI server is running.");
+    }
+    throw err;
+  }
+}
+
+async function callModel(disease){
+  const features = extractFeatures(disease);
+  if(USE_REAL_MODEL){
+    const data = await callBackendPrediction(disease, features);
+    return { data, features };
+  } else {
+    return { data: { confidence: demoScore(disease,features)*100, prediction: demoScore(disease,features)>0.65?1:0 }, features };
+  }
+}
+
+/*==========================
+  PREDICT UI
+==========================*/
+const diseaseInfo = {
+  heart:{name:'Heart Disease',icon:'❤️',color:'red'},
+  diabetes:{name:'Diabetes',icon:'🩸',color:'yellow'},
+  liver:{name:'Liver Disease',icon:'🫀',color:'teal'},
+  kidney:{name:'Kidney Disease',icon:'🫘',color:'blue'},
+  cancer:{name:'Breast Cancer',icon:'🔬',color:'pink'},
+  respiratory:{name:'Respiratory',icon:'🫁',color:'cyan'},
+  parkinson:{name:"Parkinson's",icon:'🧠',color:'orange'},
+  stroke:{name:'Stroke Risk',icon:'⚡',color:'purple'},
+  thyroid:{name:'Thyroid',icon:'🦋',color:'green'}
+};
+
+const riskInfo = {
+  low:{label:'Low Risk',icon:'✅',advice:'Your parameters indicate a low risk profile. Maintain your current healthy lifestyle. Schedule routine checkups annually.'},
+  med:{label:'Moderate Risk',icon:'⚠️',advice:'Some parameters are outside optimal ranges. Consult your physician within 3 months. Consider lifestyle adjustments.'},
+  high:{label:'High Risk',icon:'🚨',advice:'Multiple parameters indicate elevated risk. Seek medical consultation within 2 weeks. Do not delay professional evaluation.'}
+};
+
+async function predict(disease, btn){
+  const span = btn.querySelector('span');
+  const spin = btn.querySelector('.spin');
+  const result = document.getElementById('r-'+disease);
+  btn.disabled=true;spin.style.display='block';span.style.opacity='0.5';
+  try {
+    const {data, features} = await callModel(disease);
+    const pct = Math.round(data.confidence);
+    const level = data.prediction === 1 ? 'high' : 'low';
+    const info = riskInfo[level];
+    const dinfo = diseaseInfo[disease];
+    result.className='result-box show '+level;
+    result.innerHTML=`
+      <div class="result-top">
+        <span class="result-icon">${info.icon}</span>
+        <span class="result-title ${level}">${info.label} — ${dinfo.name}</span>
+      </div>
+      <div class="result-body">${info.advice}</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap">
+        <div class="result-score ${level}">Risk Score: ${pct}%</div>
+        <div style="flex:1;min-width:120px;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;border-radius:3px;background:${level==='low'?'#22c55e':level==='med'?'#eab308':'#ef4444'};transition:width 0.8s ease"></div>
+        </div>
+        <button class="btn-save" onclick="saveToHistory('${disease}',${pct},'${level}')">💾 Save Result</button>
+      </div>
+    `;
+  } catch(e){
+    result.className='result-box show med';
+    result.innerHTML=`<div class="result-top"><span class="result-icon">⚠️</span><span class="result-title med">Error</span></div><div class="result-body">Could not get prediction: ${e.message}</div>`;
+  }
+  btn.disabled=false;spin.style.display='none';span.style.opacity='1';
+}
+
+function resetResult(d){
+  const r=document.getElementById('r-'+d);
+  r.className='result-box';r.innerHTML='';
+}
+
+/*==========================
+  TAB SYSTEM
+==========================*/
+document.getElementById('predictTabs').addEventListener('click',function(e){
+  const tab=e.target.closest('.p-tab');if(!tab)return;
+  document.querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  document.getElementById('predict').scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+function activateTab(tab){
+  document.querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
+  const btn=document.querySelector(`.p-tab[data-tab="${tab}"]`);
+  if(btn)btn.classList.add('active');
+  const pane=document.getElementById('tab-'+tab);
+  if(pane)pane.classList.add('active');
+  document.getElementById('predict').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/*==========================
+  HISTORY
+==========================*/
+let history = JSON.parse(localStorage.getItem('hp_history')||'[]');
+
+function saveToHistory(disease,pct,level){
+  const dinfo=diseaseInfo[disease];
+  const entry={id:Date.now(),disease,name:dinfo.name,icon:dinfo.icon,pct,level,date:new Date().toLocaleString()};
+  history.unshift(entry);
+  if(history.length>100)history.pop();
+  localStorage.setItem('hp_history',JSON.stringify(history));
+  renderHistory();
+  showToast('✅ Result saved to history','success');
+}
+
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  const empty=document.getElementById('history-empty');
+  const count=document.getElementById('hist-count');
+  count.textContent=history.length+' record'+(history.length!==1?'s':'')+' saved';
+  if(!history.length){list.style.display='none';empty.style.display='block';return}
+  empty.style.display='none';list.style.display='flex';
+  list.innerHTML=history.map(h=>`
+    <div class="hist-card">
+      <div class="hist-icon" style="background:rgba(255,255,255,0.05)">${h.icon}</div>
+      <div class="hist-info">
+        <div class="hist-name">${h.name}</div>
+        <div class="hist-date">${h.date}</div>
+      </div>
+      <div class="hist-risk ${h.level}">${h.level==='low'?'Low Risk':h.level==='med'?'Moderate':'High Risk'}</div>
+      <div class="hist-score ${h.level}">${h.pct}%</div>
+      <button class="hist-del" onclick="deleteEntry(${h.id})" title="Delete">×</button>
+    </div>
+  `).join('');
+}
+
+function deleteEntry(id){
+  history=history.filter(h=>h.id!==id);
+  localStorage.setItem('hp_history',JSON.stringify(history));
+  renderHistory();
+}
+
+function clearHistory(){
+  if(!history.length)return;
+  if(confirm('Clear all prediction history?')){
+    history=[];localStorage.removeItem('hp_history');renderHistory();showToast('🗑 History cleared','info');
+  }
+}
+
+renderHistory();
+
+/*==========================
+  EXPORT PDF
+==========================*/
+function exportPDF(){
+  if(!history.length){showToast('No records to export','info');return}
+  const rows=history.map(h=>`
+    <tr>
+      <td style="padding:8px;border-bottom:1px solid #eee">${h.icon} ${h.name}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee">${h.date}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;color:${h.level==='low'?'#16a34a':h.level==='med'?'#ca8a04':'#dc2626'};font-weight:600">${h.level==='low'?'Low Risk':h.level==='med'?'Moderate Risk':'High Risk'}</td>
+      <td style="padding:8px;border-bottom:1px solid #eee;font-weight:700">${h.pct}%</td>
+    </tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>HealthPredict Report</title>
+  <style>body{font-family:Arial,sans-serif;padding:40px;color:#1a1a2e}
+  h1{color:#3b82f6;margin-bottom:4px}
+  .subtitle{color:#666;margin-bottom:30px;font-size:14px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{background:#3b82f6;color:white;padding:10px 8px;text-align:left}
+  tr:nth-child(even){background:#f9f9f9}
+  .footer{margin-top:40px;font-size:12px;color:#999;border-top:1px solid #eee;padding-top:16px}
+  .summary{display:flex;gap:20px;margin-bottom:24px}
+  .stat{background:#f0f7ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 20px;text-align:center}
+  .stat-n{font-size:24px;font-weight:700;color:#3b82f6}
+  .stat-l{font-size:12px;color:#666}
+  <`+`/style><`+`/head><body`+`>
+  <h1>🧬 HealthPredict AI — Patient Report</h1>
+  <div class="subtitle">Generated on ${new Date().toLocaleString()} · ${history.length} prediction(s)</div>
+  <div class="summary">
+    <div class="stat"><div class="stat-n">${history.length}</div><div class="stat-l">Total Predictions</div></div>
+    <div class="stat"><div class="stat-n">${history.filter(h=>h.level==='low').length}</div><div class="stat-l">Low Risk</div></div>
+    <div class="stat"><div class="stat-n">${history.filter(h=>h.level==='med').length}</div><div class="stat-l">Moderate Risk</div></div>
+    <div class="stat"><div class="stat-n">${history.filter(h=>h.level==='high').length}</div><div class="stat-l">High Risk</div></div>
+  </div>
+  <table><thead><tr><th>Disease</th><th>Date &amp; Time</th><th>Risk Level</th><th>Score</th></tr></thead>
+  <tbody>${rows}</tbody></table>
+  <div class="footer">⚠️ For educational purposes only. Not a medical diagnosis. Always consult a qualified physician.<br>HealthPredict AI © 2026</div>
+  <`+`/body><`+`/html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+  setTimeout(()=>{w.print()},400);
+  showToast('📄 PDF report ready — use browser print','success');
+}
+
+function exportCSV(){
+  if(!history.length){showToast('No records to export','info');return}
+  const head='Disease,Date,Risk Level,Score (%)\n';
+  const rows=history.map(h=>`${h.name},${h.date},${h.level==='low'?'Low Risk':h.level==='med'?'Moderate Risk':'High Risk'},${h.pct}`).join('\n');
+  const blob=new Blob([head+rows],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='healthpredict_report_'+Date.now()+'.csv';a.click();
+  showToast('📊 CSV downloaded','success');
+}
+
+/*==========================
+  TOAST
+==========================*/
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>{t.classList.remove('show')},3200);
+}
+
+function smoothScrollTo(selector){
+  document.querySelector(selector)&&document.querySelector(selector).scrollIntoView({behavior:'smooth'});
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const badge = document.getElementById('model-status-badge');
+  try {
+    const [healthRes, infoRes] = await Promise.all([
+      fetch(`${API_BASE}/health`),
+      fetch(MODEL_INFO_ENDPOINT)
+    ]);
+    if (healthRes.ok) {
+      const healthData = await healthRes.json();
+      if (infoRes.ok) {
+        const modelInfo = await infoRes.json();
+        updateModelAccuracyCards(modelInfo, healthData.loaded_models || []);
+      } else {
+        updateModelAccuracyCards({}, healthData.loaded_models || []);
+      }
+      badge.innerHTML = "✅ Real ML Models Connected";
+      badge.style.background = "rgba(34,197,94,0.1)";
+      badge.style.borderColor = "rgba(34,197,94,0.3)";
+      badge.style.color = "#4ade80";
+    } else {
+      throw new Error("Backend offline");
+    }
+  } catch(e) {
+    updateModelAccuracyCards();
+    badge.innerHTML = "❌ Backend not connected";
+    badge.style.background = "rgba(239,68,68,0.1)";
+    badge.style.borderColor = "rgba(239,68,68,0.3)";
+    badge.style.color = "#f87171";
+  }
+});
+
+/*==========================
+  NAV ACTIVE STATE
+==========================*/
+const sections=[{id:'hero',btn:0},{id:'diseases',btn:1},{id:'predict',btn:2},{id:'history',btn:3}];
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const s=sections.find(s=>s.id===e.target.id);
+      if(s){document.querySelectorAll('.nav-link').forEach((l,i)=>{l.classList.toggle('active',i===s.btn)})}
+    }
+  });
+},{threshold:0.4});
+sections.forEach(s=>{const el=document.getElementById(s.id);if(el)obs.observe(el)});
+</script>
+</body>
+</html>
