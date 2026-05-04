@@ -41,13 +41,13 @@ Whether you're a healthcare professional, researcher, or individual concerned ab
 ## 🎨 Screenshots
 
 ### Home Interface
-![Home UI]![alt text](assets/screenshots/image-1.png)
+![Home UI]![alt text][alt text](assets/screenshots/image.png)
 
 ### Prediction Input
 ![Prediction UI]![alt text](assets/screenshots/image-2.png)
 
 ### Results Dashboard
-![Result UI]![alt text](assets/screenshots/image.png)
+![Result UI]!![alt text](assets/screenshots/image-1.png)
 
 ---
 
