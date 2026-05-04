@@ -55,19 +55,42 @@ model_accuracy = {
     "thyroid": 94
 }
 
-models = {}
-for name, filename in model_files.items():
+import gc
+
+current_model_name = None
+current_model = None
+
+def get_model(disease: str):
+    global current_model_name, current_model
+    
+    if current_model_name == disease:
+        return current_model
+        
+    # Unload previous model to save memory
+    current_model = None
+    current_model_name = None
+    gc.collect()
+    
+    filename = model_files.get(disease)
+    if not filename:
+        return None
+        
     filepath = os.path.join(MODEL_DIR, filename)
     if os.path.exists(filepath):
         try:
-            models[name] = joblib.load(filepath)
+            current_model = joblib.load(filepath)
+            current_model_name = disease
             print(f"Loaded {filename}")
+            return current_model
         except Exception as e:
             print(f"Error loading {filename}: {e}")
+            return None
+    return None
 
 @app.get("/health")
 def health_check():
-    return {"status": "online", "loaded_models": list(models.keys())}
+    available_models = [name for name, filename in model_files.items() if os.path.exists(os.path.join(MODEL_DIR, filename))]
+    return {"message": "HealthPredict AI Backend Running", "loaded_models": available_models}
 
 @app.get("/model-info")
 def model_info():
@@ -268,10 +291,9 @@ def map_features(disease: str, f: dict):
 
 @app.post("/predict/{disease}")
 def predict_endpoint(disease: str, data: dict):
-    if disease not in models:
-        raise HTTPException(status_code=500, detail=f"Model for {disease} is not loaded.")
-    
-    model = models[disease]
+    model = get_model(disease)
+    if not model:
+        raise HTTPException(status_code=500, detail=f"Model for {disease} is not available or failed to load.")
     mapped_features = map_features(disease, data)
     
     df = pd.DataFrame([mapped_features])
